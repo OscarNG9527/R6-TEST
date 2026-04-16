@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>彩虹六号：围攻 - 干员性格测试</title>
+    <title>BanG Dream! x R6 干员/Mbti性格测试</title>
     <!-- 引入Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- 引入Font Awesome图标 -->
@@ -15,12 +15,20 @@
                 extend: {
                     colors: {
                         r6: {
-                            dark: '#0F172A',       // 主深色
-                            neutral: '#1E293B',    // 中性灰
-                            accent: '#06B6D4',     // 战术蓝
-                            red: '#EF4444',        // 进攻红
-                            blue: '#3B82F6',       // 防守蓝
-                            light: '#F1F5F9'       // 文字白
+                            dark: '#0F172A',
+                            neutral: '#1E293B',
+                            accent: '#06B6D4',
+                            red: '#EF4444',
+                            blue: '#3B82F6',
+                            light: '#F1F5F9'
+                        },
+                        bd: {
+                            pp: '#FCA5A5',    // Poppin'Party - 粉色
+                            ag: '#86EFAC',    // Afterglow - 绿色
+                            ro: '#93C5FD',    // Roselia - 蓝色
+                            hhw: '#FDE68A',   // Hello, Happy World! - 黄色
+                            my: '#E5E7EB',    // Morfonion/MyGO - 灰色
+                            ras: '#C4B5FD'    // RAS - 紫色
                         }
                     },
                     fontFamily: {
@@ -32,31 +40,24 @@
     </script>
     <style type="text/tailwindcss">
         @layer utilities {
-            .content-auto {
-                content-visibility: auto;
-            }
-            .card-hover {
-                @apply transition-all duration-300 hover:scale-105 hover:shadow-lg;
-            }
-            .btn-primary {
-                @apply bg-r6-accent text-white px-6 py-3 rounded-lg font-bold transition-all hover:bg-opacity-90 active:scale-95;
-            }
-            .btn-option {
-                @apply bg-r6-neutral text-r6-light w-full p-4 rounded-lg mb-3 text-left transition-all hover:bg-r6-accent hover:text-white cursor-pointer;
-            }
+            .content-auto { content-visibility: auto; }
+            .card-hover { @apply transition-all duration-300 hover:scale-105 hover:shadow-lg; }
+            .btn-primary { @apply bg-r6-accent text-white px-6 py-3 rounded-lg font-bold transition-all hover:bg-opacity-90 active:scale-95; }
+            .btn-option { @apply bg-r6-neutral text-r6-light w-full p-4 rounded-lg mb-3 text-left transition-all hover:bg-r6-accent hover:text-white cursor-pointer; }
+            .btn-option-selected { @apply bg-r6-accent text-white; }
+            .progress-bar { @apply h-2 bg-r6-accent rounded-full transition-all duration-300; }
         }
     </style>
 </head>
 <body class="bg-r6-dark text-r6-light min-h-screen">
-    <!-- 页面容器 -->
     <div class="max-w-3xl mx-auto px-4 py-8">
         <!-- 首页 -->
         <div id="home" class="flex flex-col items-center justify-center min-h-[80vh] text-center">
             <div class="mb-8">
-                <i class="fa-solid fa-shield-halved text-6xl text-r6-accent mb-4"></i>
-                <h1 class="text-[clamp(2rem,5vw,3rem)] font-bold mb-2">彩虹六号：围攻</h1>
-                <p class="text-r6-accent text-xl mb-6">测试你的性格最像哪位干员</p>
-                <p class="text-gray-400 max-w-md mx-auto">通过5道简单的测试题，找到与你灵魂契合的R6干员，无论进攻还是防守，总有你的专属定位！</p>
+                <i class="fa-solid fa-music text-6xl text-r6-accent mb-4"></i>
+                <h1 class="text-[clamp(2rem,5vw,3rem)] font-bold mb-2">BanG Dream! x R6</h1>
+                <p class="text-r6-accent text-xl mb-6">性格与干员/Mbti匹配测试</p>
+                <p class="text-gray-400 max-w-md mx-auto">结合36道MBTI深度题目，寻找你灵魂契合的R6干员与BanG Dream!角色。</p>
             </div>
             <button id="startBtn" class="btn-primary">
                 开始测试 <i class="fa-solid fa-arrow-right ml-2"></i>
@@ -65,29 +66,73 @@
 
         <!-- 测试页 -->
         <div id="quiz" class="hidden py-8">
-            <div class="mb-6 flex justify-between items-center">
-                <h2 class="text-2xl font-bold">性格测试</h2>
-                <span id="progress" class="text-r6-accent font-semibold">1/5</span>
+            <div class="mb-6 flex flex-col gap-2">
+                <h2 class="text-2xl font-bold">深度性格测试</h2>
+                <div class="w-full bg-r6-neutral rounded-full h-2">
+                    <div id="progressFill" class="progress-bar w-[10%]"></div>
+                </div>
+                <div class="flex justify-between text-sm text-gray-400">
+                    <span id="progressText">1/36</span>
+                    <span id="mbtiDisplay">MBTI: ----</span>
+                </div>
             </div>
             <div class="bg-r6-neutral rounded-xl p-6 mb-6">
-                <h3 id="question" class="text-xl mb-4 font-medium">题目加载中...</h3>
+                <h3 id="question" class="text-xl mb-4 font-medium"></h3>
                 <div id="options" class="space-y-2">
                     <!-- 选项动态生成 -->
                 </div>
+            </div>
+            <div class="flex justify-between">
+                <button id="prevBtn" class="btn-primary bg-gray-600 hover:bg-gray-500 hidden" disabled>
+                    <i class="fa-solid fa-arrow-left mr-2"></i> 上一题
+                </button>
+                <button id="nextBtn" class="btn-primary">
+                    下一题 <i class="fa-solid fa-arrow-right ml-2"></i>
+                </button>
             </div>
         </div>
 
         <!-- 结果页 -->
         <div id="result" class="hidden py-8 text-center">
             <div class="bg-r6-neutral rounded-xl p-8 shadow-xl">
-                <div class="w-32 h-32 mx-auto mb-4 rounded-full bg-r6-dark flex items-center justify-center">
-                    <i id="resultIcon" class="fa-solid fa-user-astronaut text-5xl text-r6-accent"></i>
+                <h2 class="text-3xl font-bold mb-6">你的测试结果</h2>
+                
+                <!-- MBTI 结果 -->
+                <div class="mb-8">
+                    <div class="text-5xl font-bold text-r6-accent mb-2" id="mbtiResult">ENTP</div>
+                    <p class="text-gray-300" id="mbtiDesc">辩论家型人格：思维敏捷，充满想象力</p>
                 </div>
-                <h2 class="text-3xl font-bold mb-2">你的专属干员</h2>
-                <h3 id="resultName" class="text-r6-accent text-2xl mb-2">干员名称</h3>
-                <span id="resultTeam" class="inline-block px-3 py-1 rounded-full text-sm font-semibold mb-4"></span>
-                <p id="resultPersonality" class="text-gray-300 mb-4 text-lg">性格标签</p>
-                <p id="resultDesc" class="text-gray-400 mb-6">干员描述</p>
+
+                <!-- R6 干员 -->
+                <div class="mb-8">
+                    <h3 class="text-xl text-r6-red font-semibold mb-2">🌈 最像的R6干员</h3>
+                    <div class="flex items-center justify-center gap-4">
+                        <div id="r6Icon" class="w-20 h-20 rounded-full bg-r6-dark flex items-center justify-center">
+                            <i id="r6IconImg" class="fa-solid fa-fire-flame-curved text-3xl text-r6-red"></i>
+                        </div>
+                        <div class="text-left">
+                            <div class="text-2xl font-bold" id="r6Name">Thermite (热切)</div>
+                            <div class="text-r6-red font-semibold">进攻方</div>
+                        </div>
+                    </div>
+                    <p class="text-gray-400 mt-4 max-w-md mx-auto" id="r6Desc">你是团队的先锋，充满勇气与领导力，遇到困难从不退缩，总能带领大家突破困境。</p>
+                </div>
+
+                <!-- BanG Dream 角色 -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold mb-2">🎸 最像的BanG Dream!角色</h3>
+                    <div class="flex items-center justify-center gap-4">
+                        <div id="bdIcon" class="w-20 h-20 rounded-full bg-bd-pp flex items-center justify-center">
+                            <i id="bdIconImg" class="fa-solid fa-user-astronaut text-3xl text-white"></i>
+                        </div>
+                        <div class="text-left">
+                            <div class="text-2xl font-bold" id="bdName">弦卷 心 (Kokoro)</div>
+                            <div class="text-bd-hhw font-semibold">Hello, Happy World!</div>
+                        </div>
+                    </div>
+                    <p class="text-gray-400 mt-4 max-w-md mx-auto" id="bdDesc">元气满满的快乐制造者，拥有让世界微笑的使命感，天马行空，永远充满热情。</p>
+                </div>
+
                 <button id="restartBtn" class="btn-primary">
                     重新测试 <i class="fa-solid fa-rotate-right ml-2"></i>
                 </button>
@@ -96,212 +141,46 @@
     </div>
 
     <script>
-        // 核心数据：测试题目、选项、干员匹配
-        const quizData = [
-            {
-                question: "团队遇到危机时，你会怎么做？",
-                options: [
-                    { text: "主动带头冲锋，解决核心问题", operator: "thermite" },
-                    { text: "快速制定方案，高效执行任务", operator: "ash" },
-                    { text: "冷静观察局势，守护队友安全", operator: "jager" },
-                    { text: "默默准备防御，给大家安全感", operator: "rook" }
-                ]
-            },
-            {
-                question: "你的处事风格更偏向？",
-                options: [
-                    { text: "直率果断，不拖泥带水", operator: "ash" },
-                    { text: "沉稳可靠，稳中求胜", operator: "bandit" },
-                    { text: "温柔细心，照顾身边的人", operator: "doc" },
-                    { text: "独立敏锐，喜欢独来独往", operator: "caveira" }
-                ]
-            },
-            {
-                question: "面对新挑战，你的态度是？",
-                options: [
-                    { text: "充满热情，勇于突破极限", operator: "thermite" },
-                    { text: "理性分析，用智慧解决问题", operator: "iq" },
-                    { text: "随机应变，灵活应对变化", operator: "jager" },
-                    { text: "做好万全准备，绝不冒险", operator: "rook" }
-                ]
-            },
-            {
-                question: "朋友眼中的你是？",
-                options: [
-                    { text: "技术达人，聪明靠谱", operator: "bandit" },
-                    { text: "暖心天使，总能帮助他人", operator: "doc" },
-                    { text: "神秘酷盖，特立独行", operator: "caveira" },
-                    { text: "天生领袖，值得信赖", operator: "thermite" }
-                ]
-            },
-            {
-                question: "你最看重的品质是？",
-                options: [
-                    { text: "勇气与效率", operator: "ash" },
-                    { text: "责任与守护", operator: "doc" },
-                    { text: "智慧与冷静", operator: "iq" },
-                    { text: "独立与坚韧", operator: "caveira" }
-                ]
-            }
-        ];
+        // --- 配置区 ---
+        // MBTI题库 (36题)
+        const mbtiQuestions = [
+            // E / I 维度 (1-9)
+            { q: "1. 当你感到疲惫时，你更倾向于？", options: [{ t: "出去走走，和朋友见面", sc: "E" }, { t: "独自在家静静地休息", sc: "I" }] },
+            { q: "2. 你是否喜欢主动与陌生人交谈？", options: [{ t: "是，很享受这种过程", sc: "E" }, { t: "否，尽量避免", sc: "I" }] },
+            { q: "3. 在小组讨论中，你通常？", options: [{ t: "积极发言，提出自己的观点", sc: "E" }, { t: "倾听他人意见，很少主动发言", sc: "I" }] },
+            { q: "4. 你更喜欢？", options: [{ t: "参加聚会或社交活动", sc: "E" }, { t: "独自度过一个安静的周末", sc: "I" }] },
+            { q: "5. 你是否经常在思考前就表达出你的想法？", options: [{ t: "是，想到就说", sc: "E" }, { t: "否，先想清楚再说", sc: "I" }] },
+            { q: "6. 你在新环境中是否很快就能适应并结识新朋友？", options: [{ t: "是，如鱼得水", sc: "E" }, { t: "否，需要一段时间", sc: "I" }] },
+            { q: "7. 你是否觉得与他人交流能让你更有活力？", options: [{ t: "是，社交充电", sc: "E" }, { t: "否，社交耗电", sc: "I" }] },
+            { q: "8. 你是否经常在社交场合中成为话题的引导者？", options: [{ t: "是，喜欢带动气氛", sc: "E" }, { t: "否，更喜欢做旁观者", sc: "I" }] },
+            { q: "9. 你喜欢通过与他人讨论来理清自己的思路吗？", options: [{ t: "喜欢，碰撞火花", sc: "E" }, { t: "不喜欢，独自思考", sc: "I" }] },
 
-        // 干员数据
-        const operatorData = {
-            thermite: {
-                name: "Thermite（热切）",
-                team: "进攻方",
-                teamColor: "bg-r6-red",
-                personality: "热情、果断、天生领袖",
-                desc: "你是团队的先锋，充满勇气与领导力，遇到困难从不退缩，总能带领大家突破困境，是值得信赖的核心人物。",
-                icon: "fa-fire-flame-curved"
-            },
-            ash: {
-                name: "Ash（艾什）",
-                team: "进攻方",
-                teamColor: "bg-r6-red",
-                personality: "高效、直率、行动派",
-                desc: "你追求效率，做事雷厉风行，不喜欢拖沓，头脑灵活执行力拉满，是团队中最可靠的突击手。",
-                icon: "fa-bolt"
-            },
-            jager: {
-                name: "Jäger（耶格）",
-                team: "防守方",
-                teamColor: "bg-r6-blue",
-                personality: "冷静、机智、守护欲强",
-                desc: "你性格沉稳冷静，拥有极强的观察力，擅长保护队友，是团队中最坚实的后盾。",
-                icon: "fa-shield"
-            },
-            bandit: {
-                name: "Bandit（班迪）",
-                team: "防守方",
-                teamColor: "bg-r6-blue",
-                personality: "技术宅、沉稳、可靠",
-                desc: "你聪明机智，擅长用技术解决问题，性格低调内敛，关键时刻总能发挥关键作用。",
-                icon: "fa-bolt-lightning"
-            },
-            doc: {
-                name: "Doc（医生）",
-                team: "防守方",
-                teamColor: "bg-r6-blue",
-                personality: "温柔、利他、团队守护者",
-                desc: "你心地善良，乐于助人，把他人的安全放在第一位，是团队中最温暖的存在。",
-                icon: "fa-heart-pulse"
-            },
-            rook: {
-                name: "Rook（洛克）",
-                team: "防守方",
-                teamColor: "bg-r6-blue",
-                personality: "稳重、踏实、安全感满满",
-                desc: "你性格踏实稳重，做事靠谱，总能给身边的人带来满满的安全感，是团队的定心丸。",
-                icon: "fa-shield-halved"
-            },
-            iq: {
-                name: "IQ（精英干员）",
-                team: "进攻方",
-                teamColor: "bg-r6-red",
-                personality: "聪慧、理性、追求完美",
-                desc: "你智商超群，理性冷静，做事精益求精，擅长用智慧破解难题，是团队中的智囊。",
-                icon: "fa-brain"
-            },
-            caveira: {
-                name: "Caveira（女鬼）",
-                team: "防守方",
-                teamColor: "bg-r6-blue",
-                personality: "神秘、敏锐、独立",
-                desc: "你特立独行，观察力敏锐，拥有强大的独立能力，不依赖他人，自带神秘气场。",
-                icon: "fa-mask"
-            }
-        };
+            // N / S 维度 (10-18)
+            { q: "10. 处理问题时，你更依赖？", options: [{ t: "灵感、直觉和可能性", sc: "N" }, { t: "经验、事实和细节", sc: "S" }] },
+            { q: "11. 你更关注？", options: [{ t: "宏观蓝图和未来趋势", sc: "N" }, { t: "当下具体的现实情况", sc: "S" }] },
+            { q: "12. 对于新事物，你的态度是？", options: [{ t: "充满好奇，想要探索未知", sc: "N" }, { t: "谨慎观望，需要确认安全", sc: "S" }] },
+            { q: "13. 你阅读或看剧时，更在意？", options: [{ t: "剧情深意和隐喻", sc: "N" }, { t: "逻辑合理性和细节", sc: "S" }] },
+            { q: "14. 学习新技能时，你更喜欢？", options: [{ t: "掌握整体概念，灵活运用", sc: "N" }, { t: "一步一个脚印，熟练掌握", sc: "S" }] },
+            { q: "15. 做计划时，你倾向于？", options: [{ t: "留有余地，随机应变", sc: "N" }, { t: "详细周密，按部就班", sc: "S" }] },
+            { q: "16. 你更擅长？", options: [{ t: "想象和创造", sc: "N" }, { t: "记忆和重现", sc: "S" }] },
+            { q: "17. 面对未知的挑战，你会？", options: [{ t: "兴奋，期待新体验", sc: "N" }, { t: "焦虑，想要准备充分", sc: "S" }] },
+            { q: "18. 你更喜欢哪种工作环境？", options: [{ t: "自由、创新、多变", sc: "N" }, { t: "稳定、有序、清晰", sc: "S" }] },
 
-        // 全局变量
-        let currentQuestion = 0;
-        let score = {};
-        // 初始化干员分数
-        Object.keys(operatorData).forEach(key => score[key] = 0);
+            // T / F 维度 (19-27)
+            { q: "19. 做决定时，你更看重？", options: [{ t: "逻辑、客观事实", sc: "T" }, { t: "人情、价值观", sc: "F" }] },
+            { q: "20. 遇到冲突时，你通常会？", options: [{ t: "就事论事，理性解决", sc: "T" }, { t: "安抚情绪，和睦为重", sc: "F" }] },
+            { q: "21. 你认为“诚实”比“圆滑”更重要吗？", options: [{ t: "是，实话最重要", sc: "T" }, { t: "否，圆滑更能顾全大局", sc: "F" }] },
+            { q: "22. 评价他人时，你更倾向于？", options: [{ t: "客观冷酷，一针见血", sc: "T" }, { t: "温和善意，鼓励为主", sc: "F" }] },
+            { q: "23. 你觉得谁更让人困扰？", options: [{ t: "不讲道理的人", sc: "T" }, { t: "过于冷漠的人", sc: "F" }] },
+            { q: "24. 工作中，你更看重？", options: [{ t: "效率和成果", sc: "T" }, { t: "团队氛围和感受", sc: "F" }] },
+            { q: "25. 对于批评，你的第一反应是？", options: [{ t: "分析对错，改进自己", sc: "T" }, { t: "感到受伤，需要安慰", sc: "F" }] },
+            { q: "26. 你更擅长？", options: [{ t: "指出问题", sc: "T" }, { t: "发现优点", sc: "F" }] },
+            { q: "27. 你认为原则重要还是人情重要？", options: [{ t: "原则", sc: "T" }, { t: "人情", sc: "F" }] },
 
-        // DOM元素
-        const homePage = document.getElementById('home');
-        const quizPage = document.getElementById('quiz');
-        const resultPage = document.getElementById('result');
-        const startBtn = document.getElementById('startBtn');
-        const restartBtn = document.getElementById('restartBtn');
-        const questionEl = document.getElementById('question');
-        const optionsEl = document.getElementById('options');
-        const progressEl = document.getElementById('progress');
-        const resultName = document.getElementById('resultName');
-        const resultTeam = document.getElementById('resultTeam');
-        const resultPersonality = document.getElementById('resultPersonality');
-        const resultDesc = document.getElementById('resultDesc');
-        const resultIcon = document.getElementById('resultIcon');
-
-        // 开始测试
-        startBtn.addEventListener('click', () => {
-            homePage.classList.add('hidden');
-            quizPage.classList.remove('hidden');
-            loadQuestion();
-        });
-
-        // 加载题目
-        function loadQuestion() {
-            const current = quizData[currentQuestion];
-            questionEl.textContent = current.question;
-            optionsEl.innerHTML = '';
-            progressEl.textContent = `${currentQuestion + 1}/${quizData.length}`;
-
-            current.options.forEach(option => {
-                const div = document.createElement('div');
-                div.className = 'btn-option';
-                div.textContent = option.text;
-                div.addEventListener('click', () => selectOption(option.operator));
-                optionsEl.appendChild(div);
-            });
-        }
-
-        // 选择选项
-        function selectOption(operator) {
-            score[operator]++;
-            currentQuestion++;
-
-            if (currentQuestion < quizData.length) {
-                loadQuestion();
-            } else {
-                showResult();
-            }
-        }
-
-        // 计算并展示结果
-        function showResult() {
-            quizPage.classList.add('hidden');
-            resultPage.classList.remove('hidden');
-
-            // 找到分数最高的干员
-            let maxScore = -1;
-            let bestOperator = '';
-            for (const [op, s] of Object.entries(score)) {
-                if (s > maxScore) {
-                    maxScore = s;
-                    bestOperator = op;
-                }
-            }
-
-            // 填充结果数据
-            const data = operatorData[bestOperator];
-            resultName.textContent = data.name;
-            resultTeam.textContent = data.team;
-            resultTeam.className = `inline-block px-3 py-1 rounded-full text-sm font-semibold mb-4 ${data.teamColor}`;
-            resultPersonality.textContent = data.personality;
-            resultDesc.textContent = data.desc;
-            resultIcon.className = `fa-solid ${data.icon} text-5xl text-r6-accent`;
-        }
-
-        // 重新测试
-        restartBtn.addEventListener('click', () => {
-            // 重置数据
-            currentQuestion = 0;
-            Object.keys(score).forEach(key => score[key] = 0);
-            resultPage.classList.add('hidden');
-            homePage.classList.remove('hidden');
-        });
-    </script>
-</body>
-</html>
+            // J / P 维度 (28-36)
+            { q: "28. 你的生活状态更像是？", options: [{ t: "井井有条，有计划有安排", sc: "J" }, { t: "随性自在，随遇而安", sc: "P" }] },
+            { q: "29. 你是否喜欢提前完成任务，而不是等到最后一刻？", options: [{ t: "是，提前完成安心", sc: "J" }, { t: "否，最后一刻爆发效率", sc: "P" }] },
+            { q: "30. 面对截止日期，你的压力来源于？", options: [{ t: "无法按时完成", sc: "J" }, { t: "被迫赶工失去自由", sc: "P" }] },
+            { q: "31. 你的房间/桌面通常是？", options: [{ t: "整洁有序，物品归位", sc: "J" }, { t: "杂乱但有自己的逻辑", sc: "P" }] },
+            { q: "32. 做决定时，你倾向于？", options: [{ t: "尽快确定，避免犹豫", sc: "J" }, { t: "收集所有信息，深思熟虑", sc: "P" }] },
+            { q: "33. 你更喜欢？", options: [{ t: "确定的答案", sc
