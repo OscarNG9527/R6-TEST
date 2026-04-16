@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>彩虹六号：围攻 - 干员性格测试</title>
+    <!-- 引入Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入Font Awesome图标 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 自定义配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        r6: {
+                            dark: '#0F172A',       // 主深色
+                            neutral: '#1E293B',    // 中性灰
+                            accent: '#06B6D4',     // 战术蓝
+                            red: '#EF4444',        // 进攻红
+                            blue: '#3B82F6',       // 防守蓝
+                            light: '#F1F5F9'       // 文字白
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .card-hover {
+                @apply transition-all duration-300 hover:scale-105 hover:shadow-lg;
+            }
+            .btn-primary {
+                @apply bg-r6-accent text-white px-6 py-3 rounded-lg font-bold transition-all hover:bg-opacity-90 active:scale-95;
+            }
+            .btn-option {
+                @apply bg-r6-neutral text-r6-light w-full p-4 rounded-lg mb-3 text-left transition-all hover:bg-r6-accent hover:text-white cursor-pointer;
+            }
+        }
+    </style>
+</head>
+<body class="bg-r6-dark text-r6-light min-h-screen">
+    <!-- 页面容器 -->
+    <div class="max-w-3xl mx-auto px-4 py-8">
+        <!-- 首页 -->
+        <div id="home" class="flex flex-col items-center justify-center min-h-[80vh] text-center">
+            <div class="mb-8">
+                <i class="fa-solid fa-shield-halved text-6xl text-r6-accent mb-4"></i>
+                <h1 class="text-[clamp(2rem,5vw,3rem)] font-bold mb-2">彩虹六号：围攻</h1>
+                <p class="text-r6-accent text-xl mb-6">测试你的性格最像哪位干员</p>
+                <p class="text-gray-400 max-w-md mx-auto">通过5道简单的测试题，找到与你灵魂契合的R6干员，无论进攻还是防守，总有你的专属定位！</p>
+            </div>
+            <button id="startBtn" class="btn-primary">
+                开始测试 <i class="fa-solid fa-arrow-right ml-2"></i>
+            </button>
+        </div>
+
+        <!-- 测试页 -->
+        <div id="quiz" class="hidden py-8">
+            <div class="mb-6 flex justify-between items-center">
+                <h2 class="text-2xl font-bold">性格测试</h2>
+                <span id="progress" class="text-r6-accent font-semibold">1/5</span>
+            </div>
+            <div class="bg-r6-neutral rounded-xl p-6 mb-6">
+                <h3 id="question" class="text-xl mb-4 font-medium">题目加载中...</h3>
+                <div id="options" class="space-y-2">
+                    <!-- 选项动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 结果页 -->
+        <div id="result" class="hidden py-8 text-center">
+            <div class="bg-r6-neutral rounded-xl p-8 shadow-xl">
+                <div class="w-32 h-32 mx-auto mb-4 rounded-full bg-r6-dark flex items-center justify-center">
+                    <i id="resultIcon" class="fa-solid fa-user-astronaut text-5xl text-r6-accent"></i>
+                </div>
+                <h2 class="text-3xl font-bold mb-2">你的专属干员</h2>
+                <h3 id="resultName" class="text-r6-accent text-2xl mb-2">干员名称</h3>
+                <span id="resultTeam" class="inline-block px-3 py-1 rounded-full text-sm font-semibold mb-4"></span>
+                <p id="resultPersonality" class="text-gray-300 mb-4 text-lg">性格标签</p>
+                <p id="resultDesc" class="text-gray-400 mb-6">干员描述</p>
+                <button id="restartBtn" class="btn-primary">
+                    重新测试 <i class="fa-solid fa-rotate-right ml-2"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 核心数据：测试题目、选项、干员匹配
+        const quizData = [
+            {
+                question: "团队遇到危机时，你会怎么做？",
+                options: [
+                    { text: "主动带头冲锋，解决核心问题", operator: "thermite" },
+                    { text: "快速制定方案，高效执行任务", operator: "ash" },
+                    { text: "冷静观察局势，守护队友安全", operator: "jager" },
+                    { text: "默默准备防御，给大家安全感", operator: "rook" }
+                ]
+            },
+            {
+                question: "你的处事风格更偏向？",
+                options: [
+                    { text: "直率果断，不拖泥带水", operator: "ash" },
+                    { text: "沉稳可靠，稳中求胜", operator: "bandit" },
+                    { text: "温柔细心，照顾身边的人", operator: "doc" },
+                    { text: "独立敏锐，喜欢独来独往", operator: "caveira" }
+                ]
+            },
+            {
+                question: "面对新挑战，你的态度是？",
+                options: [
+                    { text: "充满热情，勇于突破极限", operator: "thermite" },
+                    { text: "理性分析，用智慧解决问题", operator: "iq" },
+                    { text: "随机应变，灵活应对变化", operator: "jager" },
+                    { text: "做好万全准备，绝不冒险", operator: "rook" }
+                ]
+            },
+            {
+                question: "朋友眼中的你是？",
+                options: [
+                    { text: "技术达人，聪明靠谱", operator: "bandit" },
+                    { text: "暖心天使，总能帮助他人", operator: "doc" },
+                    { text: "神秘酷盖，特立独行", operator: "caveira" },
+                    { text: "天生领袖，值得信赖", operator: "thermite" }
+                ]
+            },
+            {
+                question: "你最看重的品质是？",
+                options: [
+                    { text: "勇气与效率", operator: "ash" },
+                    { text: "责任与守护", operator: "doc" },
+                    { text: "智慧与冷静", operator: "iq" },
+                    { text: "独立与坚韧", operator: "caveira" }
+                ]
+            }
+        ];
+
+        // 干员数据
+        const operatorData = {
+            thermite: {
+                name: "Thermite（热切）",
+                team: "进攻方",
+                teamColor: "bg-r6-red",
+                personality: "热情、果断、天生领袖",
+                desc: "你是团队的先锋，充满勇气与领导力，遇到困难从不退缩，总能带领大家突破困境，是值得信赖的核心人物。",
+                icon: "fa-fire-flame-curved"
+            },
+            ash: {
+                name: "Ash（艾什）",
+                team: "进攻方",
+                teamColor: "bg-r6-red",
+                personality: "高效、直率、行动派",
+                desc: "你追求效率，做事雷厉风行，不喜欢拖沓，头脑灵活执行力拉满，是团队中最可靠的突击手。",
+                icon: "fa-bolt"
+            },
+            jager: {
+                name: "Jäger（耶格）",
+                team: "防守方",
+                teamColor: "bg-r6-blue",
+                personality: "冷静、机智、守护欲强",
+                desc: "你性格沉稳冷静，拥有极强的观察力，擅长保护队友，是团队中最坚实的后盾。",
+                icon: "fa-shield"
+            },
+            bandit: {
+                name: "Bandit（班迪）",
+                team: "防守方",
+                teamColor: "bg-r6-blue",
+                personality: "技术宅、沉稳、可靠",
+                desc: "你聪明机智，擅长用技术解决问题，性格低调内敛，关键时刻总能发挥关键作用。",
+                icon: "fa-bolt-lightning"
+            },
+            doc: {
+                name: "Doc（医生）",
+                team: "防守方",
+                teamColor: "bg-r6-blue",
+                personality: "温柔、利他、团队守护者",
+                desc: "你心地善良，乐于助人，把他人的安全放在第一位，是团队中最温暖的存在。",
+                icon: "fa-heart-pulse"
+            },
+            rook: {
+                name: "Rook（洛克）",
+                team: "防守方",
+                teamColor: "bg-r6-blue",
+                personality: "稳重、踏实、安全感满满",
+                desc: "你性格踏实稳重，做事靠谱，总能给身边的人带来满满的安全感，是团队的定心丸。",
+                icon: "fa-shield-halved"
+            },
+            iq: {
+                name: "IQ（精英干员）",
+                team: "进攻方",
+                teamColor: "bg-r6-red",
+                personality: "聪慧、理性、追求完美",
+                desc: "你智商超群，理性冷静，做事精益求精，擅长用智慧破解难题，是团队中的智囊。",
+                icon: "fa-brain"
+            },
+            caveira: {
+                name: "Caveira（女鬼）",
+                team: "防守方",
+                teamColor: "bg-r6-blue",
+                personality: "神秘、敏锐、独立",
+                desc: "你特立独行，观察力敏锐，拥有强大的独立能力，不依赖他人，自带神秘气场。",
+                icon: "fa-mask"
+            }
+        };
+
+        // 全局变量
+        let currentQuestion = 0;
+        let score = {};
+        // 初始化干员分数
+        Object.keys(operatorData).forEach(key => score[key] = 0);
+
+        // DOM元素
+        const homePage = document.getElementById('home');
+        const quizPage = document.getElementById('quiz');
+        const resultPage = document.getElementById('result');
+        const startBtn = document.getElementById('startBtn');
+        const restartBtn = document.getElementById('restartBtn');
+        const questionEl = document.getElementById('question');
+        const optionsEl = document.getElementById('options');
+        const progressEl = document.getElementById('progress');
+        const resultName = document.getElementById('resultName');
+        const resultTeam = document.getElementById('resultTeam');
+        const resultPersonality = document.getElementById('resultPersonality');
+        const resultDesc = document.getElementById('resultDesc');
+        const resultIcon = document.getElementById('resultIcon');
+
+        // 开始测试
+        startBtn.addEventListener('click', () => {
+            homePage.classList.add('hidden');
+            quizPage.classList.remove('hidden');
+            loadQuestion();
+        });
+
+        // 加载题目
+        function loadQuestion() {
+            const current = quizData[currentQuestion];
+            questionEl.textContent = current.question;
+            optionsEl.innerHTML = '';
+            progressEl.textContent = `${currentQuestion + 1}/${quizData.length}`;
+
+            current.options.forEach(option => {
+                const div = document.createElement('div');
+                div.className = 'btn-option';
+                div.textContent = option.text;
+                div.addEventListener('click', () => selectOption(option.operator));
+                optionsEl.appendChild(div);
+            });
+        }
+
+        // 选择选项
+        function selectOption(operator) {
+            score[operator]++;
+            currentQuestion++;
+
+            if (currentQuestion < quizData.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        // 计算并展示结果
+        function showResult() {
+            quizPage.classList.add('hidden');
+            resultPage.classList.remove('hidden');
+
+            // 找到分数最高的干员
+            let maxScore = -1;
+            let bestOperator = '';
+            for (const [op, s] of Object.entries(score)) {
+                if (s > maxScore) {
+                    maxScore = s;
+                    bestOperator = op;
+                }
+            }
+
+            // 填充结果数据
+            const data = operatorData[bestOperator];
+            resultName.textContent = data.name;
+            resultTeam.textContent = data.team;
+            resultTeam.className = `inline-block px-3 py-1 rounded-full text-sm font-semibold mb-4 ${data.teamColor}`;
+            resultPersonality.textContent = data.personality;
+            resultDesc.textContent = data.desc;
+            resultIcon.className = `fa-solid ${data.icon} text-5xl text-r6-accent`;
+        }
+
+        // 重新测试
+        restartBtn.addEventListener('click', () => {
+            // 重置数据
+            currentQuestion = 0;
+            Object.keys(score).forEach(key => score[key] = 0);
+            resultPage.classList.add('hidden');
+            homePage.classList.remove('hidden');
+        });
+    </script>
+</body>
+</html>
